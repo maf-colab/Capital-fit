@@ -3,130 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capital-Fit Navigator</title>
+    <title>Capital-Fit Scorecard 2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 5px;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
             outline: none;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
             background: #4f46e5;
             cursor: pointer;
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        .score-card {
-            transition: all 0.2s ease;
+        .custom-card {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
-        @media print {
-            .no-print { display: none; }
-            aside { display: none; }
-            main { width: 100%; padding: 0; }
-        }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans">
+<body class="bg-[#fafbfc] text-[#1e293b]">
 
-    <div class="min-h-screen flex flex-col">
+    <div class="flex flex-col min-h-screen">
         <!-- Header -->
-        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight text-slate-800">Capital-Fit Navigator</h1>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Tourism Venture Physics Dashboard</p>
-                </div>
+        <header class="bg-white border-b border-slate-100 px-8 py-5 flex justify-between items-center sticky top-0 z-50">
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight text-slate-800">CAPITAL-FIT SCORECARD 2.0</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Tourism SME Financing Framework</p>
             </div>
             <div class="flex gap-3 no-print">
-                <button onclick="resetState()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-md transition-colors uppercase tracking-wider">Reset</button>
-                <button onclick="window.print()" class="px-5 py-2 text-xs font-bold bg-slate-800 text-white rounded-md hover:bg-slate-900 transition-all shadow-sm flex items-center gap-2 uppercase tracking-wider">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Report
-                </button>
+                <button onclick="window.print()" class="px-4 py-2 text-xs font-bold bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-all uppercase tracking-wider">Download PDF</button>
             </div>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <!-- Sidebar: Inputs -->
-            <aside class="w-80 bg-white border-r border-slate-200 overflow-y-auto p-6 no-print">
-                <h2 class="text-[11px] font-black text-slate-400 mb-6 uppercase tracking-widest border-b pb-2">Business Dimensions</h2>
+            <!-- Left Sidebar: 9 Dimensions -->
+            <aside class="w-[380px] bg-white border-r border-slate-100 overflow-y-auto p-8 no-print">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Business Dimensions</h2>
+                    <button onclick="resetValues()" class="text-[10px] font-bold text-indigo-600 hover:underline">Reset</button>
+                </div>
                 
-                <div id="controls" class="space-y-8 pb-8">
-                    <!-- JS will populate sliders here -->
+                <div id="dimension-controls" class="space-y-8">
+                    <!-- JS populated sliders -->
                 </div>
 
-                <h2 class="text-[11px] font-black text-slate-400 mb-4 uppercase tracking-widest border-b pb-2">Financial Baseline</h2>
-                <div class="space-y-4 mb-8">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Current Cash (USD)</label>
-                        <input type="number" id="currentCash" value="50000" onchange="updateVal('currentCash', this.value)" class="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded text-sm font-bold text-slate-700 outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Monthly Burn (USD)</label>
-                        <input type="number" id="monthlyBurn" value="7000" onchange="updateVal('monthlyBurn', this.value)" class="w-full mt-1 p-2 bg-slate-50 border border-slate-200 rounded text-sm font-bold text-slate-700 outline-none focus:border-indigo-500">
+                <div class="mt-10 pt-8 border-t border-slate-100">
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Liquidity Baseline</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Cash on Hand (USD)</label>
+                            <input type="number" id="cash" value="45000" onchange="updateData()" class="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Monthly Burn (USD)</label>
+                            <input type="number" id="burn" value="6500" onchange="updateData()" class="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="p-4 bg-indigo-50 rounded-xl">
+                            <p class="text-[10px] font-bold text-indigo-400 uppercase">Current Runway</p>
+                            <p class="text-xl font-black text-indigo-700" id="runway-display">0 Months</p>
+                        </div>
                     </div>
                 </div>
             </aside>
 
-            <!-- Main Dashboard -->
-            <main class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
-                <!-- Scores Row -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="score-container">
-                    <!-- Dynamic Score Cards -->
+            <!-- Main Workspace -->
+            <main class="flex-1 overflow-y-auto p-10 space-y-8">
+                
+                <!-- 4 Top Cards (Image 2 Style) -->
+                <div class="grid grid-cols-4 gap-6" id="top-cards">
+                    <!-- JS Populated -->
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Analytics -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <div class="flex justify-between items-center mb-6">
-                                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-tight">Dimension Mapping (Physics)</h3>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase italic">11-Point Assessment</span>
-                            </div>
-                            <div class="h-[450px]">
-                                <canvas id="radarChart"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-tight">Runway Extension Analysis</h3>
-                            <div class="h-[250px]">
-                                <canvas id="areaChart"></canvas>
-                            </div>
+                <div class="grid grid-cols-12 gap-8">
+                    <!-- Radar Overlay (Image 1 Style) -->
+                    <div class="col-span-12 lg:col-span-7 bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                        <h3 class="text-sm font-black text-[#1e293b] uppercase tracking-wider mb-8">FITNESS RADAR OVERLAY</h3>
+                        <div class="h-[400px] flex items-center justify-center">
+                            <canvas id="fitnessRadar"></canvas>
                         </div>
                     </div>
 
-                    <!-- Recommendation Logic -->
-                    <div class="space-y-6">
-                        <div id="primary-rec" class="p-6 rounded-2xl border-2 shadow-md transition-all">
-                            <!-- Primary Recommendation -->
+                    <!-- Recommendations (Image 3 Style) -->
+                    <div class="col-span-12 lg:col-span-5 space-y-6">
+                        <!-- Primary -->
+                        <div id="primary-card" class="p-8 rounded-[32px] border-2 transition-all">
+                            <!-- JS Populated -->
                         </div>
 
-                        <div id="secondary-rec" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <!-- Secondary Recommendation -->
+                        <!-- Secondary -->
+                        <div id="secondary-card" class="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                            <!-- JS Populated -->
                         </div>
 
-                        <div class="bg-slate-900 p-6 rounded-2xl text-white shadow-xl shadow-slate-200">
-                            <h3 class="text-[10px] font-black uppercase tracking-widest mb-4 text-indigo-400">Path Readiness Checklist</h3>
-                            <ul id="checklist" class="space-y-3">
-                                <!-- Dynamic Checklist -->
+                        <!-- Checklist -->
+                        <div class="bg-[#1e293b] p-8 rounded-[32px] text-white shadow-xl">
+                            <h3 class="text-xs font-black uppercase tracking-widest mb-6 text-slate-400">READINESS CHECKLIST</h3>
+                            <ul id="checklist" class="space-y-4">
+                                <!-- JS Populated -->
                             </ul>
                         </div>
                     </div>
@@ -136,271 +123,186 @@
     </div>
 
     <script>
-        // Data Structure
-        const defaultState = {
-            // Ops (Debt Inputs)
-            revPredictability: 4,
-            repaymentCapacity: 3.5,
-            seasonality: 3, // 1 = Highly Seasonal (bad for debt), 5 = Stable (good)
-            assetBase: 3,
-            // Growth (Equity Inputs)
-            scalability: 2.5,
-            marketSize: 3,
-            margins: 4,
-            traction: 2,
-            // Impact (Hybrid/Grant Inputs)
-            impact: 4.5,
-            earlyStage: 4,
-            marketGap: 4,
-            // Financials
-            currentCash: 50000,
-            monthlyBurn: 7000,
-            targetRaise: 150000
-        };
-
-        let state = { ...defaultState };
-
-        const sections = [
-            {
-                title: 'Revenue & Ops (Debt Factors)',
-                items: [
-                    { id: 'revPredictability', label: 'Rev Predictability', tooltip: 'Consistency of monthly/annual cash flow' },
-                    { id: 'repaymentCapacity', label: 'Repayment Capacity', tooltip: 'EBITDA margin available to service debt' },
-                    { id: 'seasonality', label: 'Revenue Stability', tooltip: 'Inverse of seasonality' },
-                    { id: 'assetBase', label: 'Asset Tangibility', tooltip: 'Collateral value (Land, Buildings, Equipment)' }
-                ]
-            },
-            {
-                title: 'Growth & Upside (Equity Factors)',
-                items: [
-                    { id: 'scalability', label: 'Scalability', tooltip: 'Ability to grow revenue without linear cost increase' },
-                    { id: 'marketSize', label: 'Market TAM', tooltip: 'Total addressable market size' },
-                    { id: 'margins', label: 'Gross Margins', tooltip: 'Efficiency of the business model' },
-                    { id: 'traction', label: 'Comms Traction', tooltip: 'Signed contracts, users, or revenue growth' }
-                ]
-            },
-            {
-                title: 'Strategic Context (Impact Factors)',
-                items: [
-                    { id: 'impact', label: 'ESG / Social Impact', tooltip: 'Measurable social or environmental return' },
-                    { id: 'earlyStage', label: 'Stage Risk', tooltip: 'Level of product/market risk' },
-                    { id: 'marketGap', label: 'Market Gap', tooltip: 'Fulfilling a need commercial capital ignores' }
-                ]
-            }
+        const dimensions = [
+            { id: 'd1', label: 'D1: Revenue Predictability', core: 'DEBT', question: 'Stability of monthly cash flows?' },
+            { id: 'd2', label: 'D2: Unit Economics', core: 'EQUITY/RBF', question: 'Gross margin level (>40%?)' },
+            { id: 'd3', label: 'D3: Scalability', core: 'EQUITY', question: 'Outsized growth potential?' },
+            { id: 'd4', label: 'D4: Seasonality Risk', core: 'DEBT', question: 'Ability to generate off-season rev?' },
+            { id: 'd5', label: 'D5: Asset Intensity', core: 'DEBT', question: 'Collateralizable assets available?' },
+            { id: 'd6', label: 'D6: Repayment Capacity', core: 'DEBT', question: 'Operating cash flow coverage?' },
+            { id: 'd7', label: 'D7: Market Traction', core: 'SCALE', question: 'Proven willingness to pay?' },
+            { id: 'd8', label: 'D8: Impact Value', core: 'BLENDED', question: 'Measurable social/env impact?' },
+            { id: 'd9', label: 'D9: Founder Strategy', core: 'FIT', question: 'Willingness to dilute equity?' }
         ];
 
-        let radarChart, areaChart;
+        let state = {
+            d1: 4, d2: 3, d3: 2, d4: 4, d5: 5, d6: 4, d7: 3, d8: 2, d9: 3
+        };
+
+        let radarChart;
 
         function init() {
-            const container = document.getElementById('controls');
-            sections.forEach(section => {
-                const group = document.createElement('div');
-                group.innerHTML = `<h3 class="text-[10px] font-black text-slate-800 uppercase mb-4 tracking-tighter flex items-center gap-1">
-                    <span class="w-1 h-3 bg-indigo-500 rounded-full"></span> ${section.title}
-                </h3>`;
-                section.items.forEach(item => {
-                    const slider = document.createElement('div');
-                    slider.className = 'mb-4';
-                    slider.innerHTML = `
-                        <div class="flex justify-between text-[11px] font-semibold mb-1 text-slate-600">
-                            <span>${item.label}</span>
-                            <span class="text-indigo-600 font-bold" id="val-${item.id}">${state[item.id]}</span>
-                        </div>
-                        <input type="range" min="1" max="5" step="0.5" value="${state[item.id]}" 
-                               oninput="updateVal('${item.id}', this.value)">
-                    `;
-                    group.appendChild(slider);
-                });
-                container.appendChild(group);
+            const container = document.getElementById('dimension-controls');
+            dimensions.forEach(d => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="flex justify-between items-baseline mb-2">
+                        <label class="text-[11px] font-extrabold text-slate-700 uppercase tracking-tight">${d.label}</label>
+                        <span class="text-xs font-black text-indigo-600" id="val-${d.id}">${state[d.id]}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mb-2 italic">${d.question}</p>
+                    <input type="range" min="1" max="5" step="0.5" value="${state[d.id]}" 
+                           oninput="updateVal('${d.id}', this.value)">
+                `;
+                container.appendChild(div);
             });
-            update();
+            updateData();
         }
 
         function updateVal(id, val) {
             state[id] = parseFloat(val);
-            if(document.getElementById(`val-${id}`)) {
-                document.getElementById(`val-${id}`).innerText = val;
-            }
-            update();
+            document.getElementById(`val-${id}`).innerText = val;
+            updateData();
         }
 
-        function resetState() {
-            state = { ...defaultState };
+        function resetValues() {
+            Object.keys(state).forEach(key => state[key] = 3);
             location.reload();
         }
 
-        function calculateScores() {
-            return [
-                { 
-                    id: 'debt', 
-                    label: 'Debt / RBF', 
-                    score: ((state.revPredictability + state.repaymentCapacity + state.seasonality + state.assetBase) / 4).toFixed(1),
-                    color: '#3b82f6'
-                },
-                { 
-                    id: 'equity', 
-                    label: 'Venture Equity', 
-                    score: ((state.scalability + state.marketSize + state.margins + state.traction) / 4).toFixed(1),
-                    color: '#a855f7'
-                },
-                { 
-                    id: 'hybrid', 
-                    label: 'Blended Finance', 
-                    score: ((state.impact + (6 - state.seasonality) + state.marketGap) / 3).toFixed(1),
-                    color: '#10b981'
-                },
-                { 
-                    id: 'grant', 
-                    label: 'Non-Dilutive', 
-                    score: ((state.impact + state.earlyStage + (6 - state.traction)) / 3).toFixed(1),
-                    color: '#f97316'
-                }
+        function updateData() {
+            // Formula Logic from Tool 1
+            const debtScore = (state.d1 + state.d6 + state.d4 + state.d5) / 4;
+            const equityScore = (state.d3 + state.d2 + state.d7) / 3; // Simplified for fit
+            const blendedScore = (state.d8 + (6 - state.d4) + (6 - state.d7)) / 3; // Risk + Impact
+            const nonDilutiveScore = (state.d8 + (6 - state.d7)) / 2;
+
+            const scores = [
+                { id: 'Debt', label: 'DEBT FIT', val: debtScore.toFixed(1), color: '#4f46e5' },
+                { id: 'Equity', label: 'EQUITY FIT', val: equityScore.toFixed(1), color: '#7c3aed' },
+                { id: 'Blended', label: 'BLENDED FIT', val: blendedScore.toFixed(1), color: '#0891b2' },
+                { id: 'Non-Dilutive', label: 'NON-DILUTIVE', val: nonDilutiveScore.toFixed(1), color: '#f97316' }
             ];
-        }
 
-        function update() {
-            const scores = calculateScores();
-            const sorted = [...scores].sort((a, b) => b.score - a.score);
-            const primary = sorted[0];
-            const secondary = sorted[1];
-
-            // Score Cards
-            const scoreContainer = document.getElementById('score-container');
-            scoreContainer.innerHTML = scores.map(s => `
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm score-card ${s.id === primary.id ? 'ring-2 ring-indigo-500 shadow-indigo-100' : ''}">
-                    <div class="flex justify-between items-start mb-1">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase">${s.label}</p>
-                        ${s.score >= 4 ? '<span class="text-[9px] bg-emerald-100 text-emerald-700 font-black px-1.5 rounded">FIT</span>' : ''}
-                    </div>
+            // Update Top Cards
+            document.getElementById('top-cards').innerHTML = scores.map(s => `
+                <div class="bg-white p-6 rounded-2xl border ${s.val >= 4 ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-slate-100'} shadow-sm">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">${s.label}</p>
                     <div class="flex items-baseline gap-1">
-                        <span class="text-3xl font-black text-slate-800">${s.score}</span>
-                        <span class="text-[10px] font-bold text-slate-300">/ 5.0</span>
+                        <span class="text-3xl font-black text-slate-800">${s.val}</span>
+                        <span class="text-xs font-bold text-slate-300">/ 5.0</span>
                     </div>
                 </div>
             `).join('');
 
-            // Path Content Definitions
-            const pathInfo = {
-                debt: { name: 'Debt / RBF', border: 'border-blue-200', bg: 'bg-blue-50', text: 'text-blue-700', icon: '🏦', tips: ['Optimize Debt-Service Coverage (DSCR)', 'Explore Revenue-Based Financing', 'Register asset collateral early'], checklist: ['3-Year P&L Forecasts', 'Operating Cash Flow Analysis', 'Asset Register / Valuation'] },
-                equity: { name: 'Venture Equity', border: 'border-purple-200', bg: 'bg-purple-50', text: 'text-purple-700', icon: '🚀', tips: ['Refine your 10x scalability narrative', 'Clarify exit paths for investors', 'Build a robust data room'], checklist: ['Investor Pitch Deck', 'Cap Table Management', 'Intellectual Property Filing'] },
-                hybrid: { name: 'Blended Finance', border: 'border-emerald-200', bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '⚖️', tips: ['Standardize your ESG reporting', 'Look for DFI or Impact partners', 'Structure as first-loss or tiered risk'], checklist: ['Impact Measurement Framework', 'Stakeholder MOUs', 'Risk Mitigation Registry'] },
-                grant: { name: 'Grants / Non-Dilutive', border: 'border-orange-200', bg: 'bg-orange-50', text: 'text-orange-700', icon: '🌱', tips: ['Align with Public/Social goals', 'Leverage Technical Assistance', 'Focus on ecosystem-wide value'], checklist: ['Grant Compliance Plan', 'Social Sustainability Metrics', 'Project-Based Accounting'] }
+            // Liquidity
+            const cash = parseFloat(document.getElementById('cash').value);
+            const burn = parseFloat(document.getElementById('burn').value);
+            const runway = burn > 0 ? (cash / burn).toFixed(1) : '∞';
+            document.getElementById('runway-display').innerText = `${runway} Months`;
+
+            // Recommendation Logic
+            const sorted = [...scores].sort((a, b) => b.val - a.val);
+            renderRecommendations(sorted[0], sorted[1]);
+
+            // Radar
+            renderRadar(scores);
+        }
+
+        function renderRecommendations(primary, secondary) {
+            const content = {
+                'Debt': { 
+                    title: 'Debt / RBF', 
+                    theme: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+                    points: ['Stable Cash Flows', 'Asset Backing', 'Repayment Capacity'],
+                    checklist: ['3-Year Projections', 'Asset Register', 'Operating Cash Analysis']
+                },
+                'Equity': { 
+                    title: 'Venture Equity', 
+                    theme: 'border-purple-100 bg-purple-50 text-purple-700',
+                    points: ['Scalability Deck', 'TAM Analysis', 'Exit Strategy'],
+                    checklist: ['Pitch Deck', 'Cap Table', 'Data Room']
+                },
+                'Blended': { 
+                    title: 'Blended Finance', 
+                    theme: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+                    points: ['Impact Framework', 'Risk Mitigation', 'Strategic Fit'],
+                    checklist: ['Impact Report', 'MOU with Partners', 'Additionality Proof']
+                },
+                'Non-Dilutive': { 
+                    title: 'Grants / Non-Dilutive', 
+                    theme: 'border-orange-100 bg-orange-50 text-orange-700',
+                    points: ['Technical Assistance', 'Social Mission', 'Pilot Funding'],
+                    checklist: ['Grant Proposal', 'Compliance Plan', 'Stakeholder Letters']
+                }
             };
 
-            const p = pathInfo[primary.id];
-            const s = pathInfo[secondary.id];
+            const p = content[primary.id];
+            const s = content[secondary.id];
 
-            document.getElementById('primary-rec').className = `p-6 rounded-2xl border-2 shadow-md ${p.bg} ${p.border}`;
-            document.getElementById('primary-rec').innerHTML = `
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-[10px] font-black ${p.text} uppercase tracking-widest">Primary Recommendation</p>
-                    <span class="text-2xl">${p.icon}</span>
-                </div>
-                <h2 class="text-2xl font-black ${p.text} mb-4">${p.name}</h2>
-                <div class="space-y-3">
-                    ${p.tips.map(t => `<div class="text-xs font-semibold text-slate-700 flex items-start gap-3">
-                        <span class="mt-1 w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>${t}
-                    </div>`).join('')}
-                </div>
+            document.getElementById('primary-card').className = `p-8 rounded-[32px] border-2 shadow-sm ${p.theme}`;
+            document.getElementById('primary-card').innerHTML = `
+                <p class="text-[10px] font-black uppercase tracking-widest mb-4 opacity-70">PRIMARY RECOMMENDATION</p>
+                <h2 class="text-4xl font-black mb-6">${p.title}</h2>
+                <ul class="space-y-3">
+                    ${p.points.map(pt => `<li class="flex items-center gap-3 text-sm font-bold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-current opacity-40"></span> ${pt}
+                    </li>`).join('')}
+                </ul>
             `;
 
-            document.getElementById('secondary-rec').innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secondary Path</p>
-                    <span class="text-sm">${s.icon}</span>
-                </div>
-                <h3 class="text-lg font-black text-slate-800">${s.name}</h3>
-                <p class="text-[10px] text-slate-500 font-medium leading-relaxed mt-1 italic">
-                    Best utilized as a "layer" or "bridge" to improve the primary capital fit.
-                </p>
+            document.getElementById('secondary-card').innerHTML = `
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">SECONDARY PATH</p>
+                <h3 class="text-xl font-black text-slate-800">${s.title}</h3>
+                <p class="text-xs text-slate-500 font-medium mt-2">Consider as a bridge or layer to increase capital-fit.</p>
             `;
 
             document.getElementById('checklist').innerHTML = p.checklist.map(item => `
-                <li class="flex items-center gap-3 text-[11px] font-bold tracking-tight">
-                    <div class="w-4 h-4 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] text-white shrink-0">✓</div>
+                <li class="flex items-center gap-4 text-xs font-bold tracking-tight">
+                    <div class="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] text-white">✓</div>
                     ${item}
                 </li>
             `).join('');
-
-            updateCharts(scores);
         }
 
-        function updateCharts(scores) {
-            // Radar Chart with 11 dimensions
-            const rCtx = document.getElementById('radarChart').getContext('2d');
-            
-            const dimensions = [
-                { label: 'Rev Pred.', val: state.revPredictability },
-                { label: 'Repayment', val: state.repaymentCapacity },
-                { label: 'Stability', val: state.seasonality },
-                { label: 'Assets', val: state.assetBase },
-                { label: 'Scale', val: state.scalability },
-                { label: 'Market', val: state.marketSize },
-                { label: 'Margins', val: state.margins },
-                { label: 'Traction', val: state.traction },
-                { label: 'Impact', val: state.impact },
-                { label: 'Market Gap', val: state.marketGap },
-                { label: 'Stage Risk', val: state.earlyStage }
-            ];
+        function renderRadar(scores) {
+            const ctx = document.getElementById('fitnessRadar').getContext('2d');
+            const data = {
+                labels: ['Debt', 'Equity', 'Blended', 'Non-Dilutive'],
+                datasets: [{
+                    data: scores.map(s => s.val),
+                    backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                    borderColor: '#4f46e5',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            };
 
             if (radarChart) radarChart.destroy();
-            radarChart = new Chart(rCtx, {
+            radarChart = new Chart(ctx, {
                 type: 'radar',
-                data: {
-                    labels: dimensions.map(d => d.label),
-                    datasets: [{
-                        label: 'Venture Physics',
-                        data: dimensions.map(d => d.val),
-                        backgroundColor: 'rgba(79, 70, 229, 0.15)',
-                        borderColor: '#4f46e5',
-                        borderWidth: 3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: '#4f46e5'
-                    }]
-                },
+                data: data,
                 options: {
+                    maintainAspectRatio: false,
                     scales: {
                         r: {
                             min: 0,
                             max: 5,
+                            beginAtZero: true,
                             ticks: { display: false, stepSize: 1 },
-                            angleLines: { color: '#f1f5f9' },
                             grid: { color: '#f1f5f9' },
-                            pointLabels: { font: { size: 10, weight: '700' }, color: '#64748b' }
+                            angleLines: { color: '#f1f5f9' },
+                            pointLabels: {
+                                font: { size: 12, weight: 'bold', family: 'Inter' },
+                                color: '#64748b'
+                            }
                         }
                     },
-                    plugins: { legend: { display: false } },
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Runway Area Chart
-            const aCtx = document.getElementById('areaChart').getContext('2d');
-            const months = Array.from({length: 24}, (_, i) => `M${i}`);
-            const fundedData = months.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i) + (i >= 4 ? state.targetRaise : 0)));
-            const baselineData = months.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i)));
-
-            if (areaChart) areaChart.destroy();
-            areaChart = new Chart(aCtx, {
-                type: 'line',
-                data: {
-                    labels: months,
-                    datasets: [
-                        { label: 'Funded', data: fundedData, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)', borderColor: '#6366f1', borderWidth: 2, tension: 0.4, pointRadius: 0 },
-                        { label: 'Baseline', data: baselineData, fill: false, borderColor: '#e2e8f0', borderWidth: 2, borderDash: [5, 5], tension: 0.4, pointRadius: 0 }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { 
-                            grid: { color: '#f8fafc' },
-                            ticks: { callback: v => `$${v/1000}k`, font: { size: 9, weight: 'bold' } } 
-                        },
-                        x: { grid: { display: false }, ticks: { font: { size: 9 } } }
-                    }
+                    plugins: { legend: { display: false } }
                 }
             });
         }
