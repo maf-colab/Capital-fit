@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capital-Fit Navigator</title>
-    <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for Radar and Area charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+        }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -17,8 +23,16 @@
             background: #4f46e5;
             cursor: pointer;
             border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .score-card {
+            transition: all 0.2s ease;
+        }
+        .recommendation-active {
+            border: 2px solid #4f46e5;
+            background-color: #f5f3ff;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans">
@@ -27,81 +41,72 @@
         <!-- Header -->
         <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50">
             <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="text-white w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">Capital-Fit Navigator</h1>
-                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Tourism Finance Support</p>
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Tourism Finance Decision Support</p>
                 </div>
             </div>
-            <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold border border-slate-200 rounded-md hover:bg-slate-50 transition-colors flex items-center gap-2">
-                Download PDF
-            </button>
+            <div class="flex gap-3">
+                <button onclick="resetState()" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors">Reset</button>
+                <button onclick="window.print()" class="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">Export PDF</button>
+            </div>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <!-- Sidebar: Inputs -->
-            <aside class="w-80 bg-white border-r border-slate-200 overflow-y-auto p-6 scrollbar-hide">
-                <h2 class="text-xs font-black text-slate-400 mb-6 uppercase tracking-widest border-b pb-2">Venture Physics</h2>
+            <!-- Sidebar -->
+            <aside class="w-80 bg-white border-r border-slate-200 overflow-y-auto p-6">
+                <h2 class="text-xs font-black text-slate-400 mb-6 uppercase tracking-widest border-b pb-2">Venture Fundamentals</h2>
                 
-                <div class="space-y-6">
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-800 mb-4 uppercase italic">Revenue & Ops</h3>
-                        <div class="space-y-4" id="inputs-ops"></div>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-800 mb-4 uppercase italic">Growth & Upside</h3>
-                        <div class="space-y-4" id="inputs-growth"></div>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-800 mb-4 uppercase italic">Impact & Context</h3>
-                        <div class="space-y-4" id="inputs-impact"></div>
-                    </div>
+                <div id="controls" class="space-y-8">
+                    <!-- JS will populate sliders here -->
                 </div>
             </aside>
 
-            <!-- Main Content: Dashboard -->
+            <!-- Main Dashboard -->
             <main class="flex-1 overflow-y-auto p-8">
-                <!-- Score Cards -->
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8" id="score-cards">
-                    <!-- Dynamic Content -->
+                <!-- Scores Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="score-container">
+                    <!-- Dynamic Score Cards -->
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Charts -->
-                    <div class="lg:col-span-2 space-y-8">
+                    <!-- Analytics -->
+                    <div class="lg:col-span-2 space-y-6">
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                <span class="w-2 h-2 bg-indigo-500 rounded-full"></span> Fitness Radar
-                            </h3>
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-tight italic">Fitness Radar Overlay</h3>
                             <div class="h-[350px]">
                                 <canvas id="radarChart"></canvas>
                             </div>
                         </div>
 
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                            <h3 class="text-sm font-bold text-slate-800 mb-4">Cash Runway Projection</h3>
+                            <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-tight italic">Liquidity Bridge (24 Month Forecast)</h3>
                             <div class="h-[250px]">
                                 <canvas id="areaChart"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Recommendations Sidebar -->
+                    <!-- Recommendation Logic -->
                     <div class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm" id="rec-box">
-                            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                Suggestions
-                            </h3>
-                            <ul class="space-y-3" id="suggestion-list"></ul>
+                        <div id="primary-rec" class="p-6 rounded-2xl border-2 shadow-md">
+                            <!-- Primary Recommendation -->
                         </div>
 
-                        <div class="bg-indigo-900 p-6 rounded-2xl shadow-lg text-white">
-                            <h3 class="text-sm font-bold mb-4 flex items-center gap-2">Readiness Checklist</h3>
-                            <div class="space-y-3" id="checklist-items"></div>
+                        <div id="secondary-rec" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                            <!-- Secondary Recommendation -->
+                        </div>
+
+                        <div class="bg-slate-800 p-6 rounded-2xl text-white">
+                            <h3 class="text-xs font-bold uppercase tracking-widest mb-4 opacity-70 text-indigo-300">Readiness Checklist</h3>
+                            <ul id="checklist" class="space-y-3">
+                                <!-- Dynamic Checklist -->
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -110,192 +115,207 @@
     </div>
 
     <script>
-        // --- DATA & CONFIG ---
-        const state = {
+        // Data Structure
+        const defaultState = {
             revPredictability: 4,
-            repaymentCapacity: 3,
+            repaymentCapacity: 3.5,
             seasonality: 2,
             assetBase: 3,
-            scalability: 2,
+            scalability: 2.5,
             marketSize: 3,
             margins: 4,
             traction: 2,
-            impact: 5,
+            impact: 4.5,
             earlyStage: 4,
             marketGap: 4,
-            currentCash: 45000,
-            monthlyBurn: 8000,
+            currentCash: 50000,
+            monthlyBurn: 7000,
             targetRaise: 150000
         };
 
-        const config = [
-            { id: 'revPredictability', label: 'Revenue Predictability', section: 'ops' },
-            { id: 'seasonality', label: 'Seasonality (Stability)', section: 'ops' },
-            { id: 'assetBase', label: 'Asset Tangibility', section: 'ops' },
-            { id: 'scalability', label: 'Scalability', section: 'growth' },
-            { id: 'marketSize', label: 'Market Size', section: 'growth' },
-            { id: 'traction', label: 'Tech Leverage', section: 'growth' },
-            { id: 'impact', label: 'ESG / Social Impact', section: 'impact' },
-            { id: 'marketGap', label: 'Ecosystem Gap', section: 'impact' }
+        let state = { ...defaultState };
+
+        const sections = [
+            {
+                title: 'Revenue & Ops',
+                items: [
+                    { id: 'revPredictability', label: 'Rev Predictability', min: 1, max: 5 },
+                    { id: 'repaymentCapacity', label: 'Repayment Capacity', min: 1, max: 5 },
+                    { id: 'seasonality', label: 'Stability (vs Seasonality)', min: 1, max: 5 },
+                    { id: 'assetBase', label: 'Asset Tangibility', min: 1, max: 5 }
+                ]
+            },
+            {
+                title: 'Growth & Upside',
+                items: [
+                    { id: 'scalability', label: 'Scalability Potential', min: 1, max: 5 },
+                    { id: 'marketSize', label: 'Market Size / TAM', min: 1, max: 5 },
+                    { id: 'margins', label: 'Unit Economics (Margins)', min: 1, max: 5 },
+                    { id: 'traction', label: 'Commercial Traction', min: 1, max: 5 }
+                ]
+            },
+            {
+                title: 'Impact & Context',
+                items: [
+                    { id: 'impact', label: 'ESG / Social Impact', min: 1, max: 5 },
+                    { id: 'earlyStage', label: 'Early Stage Risk', min: 1, max: 5 },
+                    { id: 'marketGap', label: 'Ecosystem Gap', min: 1, max: 5 }
+                ]
+            }
         ];
 
         let radarChart, areaChart;
 
-        // --- CORE LOGIC ---
-        function calculateScores() {
-            return {
-                debt: ((state.revPredictability + state.repaymentCapacity + state.seasonality + state.assetBase) / 4).toFixed(1),
-                equity: ((state.scalability + state.marketSize + state.margins + state.traction) / 4).toFixed(1),
-                blended: ((state.impact + (6 - state.seasonality) + state.marketGap) / 3).toFixed(1),
-                grant: ((state.impact + state.earlyStage + (6 - state.traction)) / 3).toFixed(1)
-            };
-        }
-
-        function getRecommendation(scores) {
-            const max = Math.max(scores.debt, scores.equity, scores.blended, scores.grant);
-            if (scores.debt == max) return {
-                type: 'DEBT / RBF',
-                color: 'blue',
-                suggestions: ["Lock in multi-year contracts", "Improve DSCR Ratio", "Explore Revenue-Based Finance"],
-                checklist: ["Current P&L statements", "3-year cash projections", "Asset register"]
-            };
-            if (scores.equity == max) return {
-                type: 'VENTURE EQUITY',
-                color: 'purple',
-                suggestions: ["Show 10x growth potential", "Protect IP assets", "Identify exit acquirers"],
-                checklist: ["Pitch deck", "Cap table model", "Data room setup"]
-            };
-            if (scores.blended == max) return {
-                type: 'BLENDED FINANCE',
-                color: 'emerald',
-                suggestions: ["Quantify ESG metrics", "Partner with DFIs", "Layer grant capital"],
-                checklist: ["Impact framework", "Partner MOUs", "Compliance audit"]
-            };
-            return {
-                type: 'GRANT / BRIDGE',
-                color: 'orange',
-                suggestions: ["Align with gov goals", "Apply for tech grants", "Focus on impact"],
-                checklist: ["Grant schedule", "Sustainability report", "Project accounting"]
-            };
-        }
-
-        // --- UI UPDATES ---
-        function initInputs() {
-            config.forEach(item => {
-                const container = document.getElementById(`inputs-${item.section}`);
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase">
-                        <span>${item.label}</span>
-                        <span id="val-${item.id}" class="text-indigo-600">${state[item.id]}</span>
-                    </div>
-                    <input type="range" min="1" max="5" step="0.5" value="${state[item.id]}" 
-                        class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer mt-1"
-                        oninput="updateState('${item.id}', this.value)">
-                `;
-                container.appendChild(div);
+        function init() {
+            const container = document.getElementById('controls');
+            sections.forEach(section => {
+                const group = document.createElement('div');
+                group.innerHTML = `<h3 class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-wider">${section.title}</h3>`;
+                section.items.forEach(item => {
+                    const slider = document.createElement('div');
+                    slider.className = 'mb-5';
+                    slider.innerHTML = `
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                            <span>${item.label}</span>
+                            <span class="text-indigo-600 font-bold" id="val-${item.id}">${state[item.id]}</span>
+                        </div>
+                        <input type="range" min="${item.min}" max="${item.max}" step="0.5" value="${state[item.id]}" 
+                               oninput="updateVal('${item.id}', this.value)">
+                    `;
+                    group.appendChild(slider);
+                });
+                container.appendChild(group);
             });
+            update();
         }
 
-        function updateState(id, val) {
+        function updateVal(id, val) {
             state[id] = parseFloat(val);
             document.getElementById(`val-${id}`).innerText = val;
-            updateDashboard();
+            update();
         }
 
-        function updateDashboard() {
-            const scores = calculateScores();
-            const rec = getRecommendation(scores);
+        function resetState() {
+            state = { ...defaultState };
+            location.reload();
+        }
 
-            // Update Cards
-            const cards = document.getElementById('score-cards');
-            cards.innerHTML = `
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Debt Fit</p>
-                    <span class="text-2xl font-black">${scores.debt}</span>
+        function calculateScores() {
+            return [
+                { id: 'debt', label: 'Debt Fit', score: ((state.revPredictability + state.repaymentCapacity + state.seasonality + state.assetBase) / 4).toFixed(1) },
+                { id: 'equity', label: 'Equity Fit', score: ((state.scalability + state.marketSize + state.margins + state.traction) / 4).toFixed(1) },
+                { id: 'hybrid', label: 'Blended Fit', score: ((state.impact + (6 - state.seasonality) + state.marketGap) / 3).toFixed(1) },
+                { id: 'grant', label: 'Non-Dilutive', score: ((state.impact + state.earlyStage + (6 - state.traction)) / 3).toFixed(1) }
+            ];
+        }
+
+        function update() {
+            const scores = calculateScores();
+            const sorted = [...scores].sort((a, b) => b.score - a.score);
+            const primary = sorted[0];
+            const secondary = sorted[1];
+
+            // Render Score Cards
+            const scoreContainer = document.getElementById('score-container');
+            scoreContainer.innerHTML = scores.map(s => `
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm score-card ${s.id === primary.id ? 'ring-2 ring-indigo-500' : ''}">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">${s.label}</p>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-slate-800">${s.score}</span>
+                        <span class="text-[10px] font-bold ${s.score >= 3.5 ? 'text-emerald-600' : 'text-slate-400'}">/ 5.0</span>
+                    </div>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Equity Fit</p>
-                    <span class="text-2xl font-black">${scores.equity}</span>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">Blended Fit</p>
-                    <span class="text-2xl font-black">${scores.blended}</span>
-                </div>
-                <div class="bg-${rec.color}-50 p-5 rounded-xl border border-${rec.color}-200">
-                    <p class="text-[10px] font-bold text-${rec.color}-600 uppercase">Top Path</p>
-                    <span class="text-xl font-black text-${rec.color}-700">${rec.type}</span>
+            `).join('');
+
+            // Recommendations Content
+            const pathInfo = {
+                debt: { name: 'Debt / RBF', border: 'border-blue-200', bg: 'bg-blue-50', text: 'text-blue-700', tips: ['Optimize DSCR', 'Asset Registry', 'Revenue Forecasts'], checklist: ['P&L Statements', 'Repayment Model', 'Collateral List'] },
+                equity: { name: 'Venture Equity', border: 'border-purple-200', bg: 'bg-purple-50', text: 'text-purple-700', tips: ['Scalability Deck', 'TAM Analysis', 'Exit Strategy'], checklist: ['Pitch Deck', 'Cap Table', 'Data Room'] },
+                hybrid: { name: 'Blended Finance', border: 'border-emerald-200', bg: 'bg-emerald-50', text: 'text-emerald-700', tips: ['ESG Measurement', 'Partner MOUs', 'Layering Grants'], checklist: ['Impact Framework', 'Technical Assistance Plan', 'Risk Register'] },
+                grant: { name: 'Grants / Non-Dilutive', border: 'border-orange-200', bg: 'bg-orange-50', text: 'text-orange-700', tips: ['Gov Alignment', 'Community Impact', 'Early R&D'], checklist: ['Grant Calendar', 'Project Budget', 'Sustainability Report'] }
+            };
+
+            const p = pathInfo[primary.id];
+            const s = pathInfo[secondary.id];
+
+            document.getElementById('primary-rec').className = `p-6 rounded-2xl border-2 shadow-md ${p.bg} ${p.border}`;
+            document.getElementById('primary-rec').innerHTML = `
+                <p class="text-[10px] font-bold ${p.text} uppercase tracking-widest mb-1">Primary Recommendation</p>
+                <h2 class="text-2xl font-black ${p.text} mb-3">${p.name}</h2>
+                <div class="space-y-2">
+                    ${p.tips.map(t => `<div class="text-xs font-medium text-slate-600 flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>${t}</div>`).join('')}
                 </div>
             `;
 
-            // Update Suggestions
-            document.getElementById('suggestion-list').innerHTML = rec.suggestions.map(s => `
-                <li class="text-xs text-slate-600 flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span> ${s}
-                </li>
-            `).join('');
+            document.getElementById('secondary-rec').innerHTML = `
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Secondary Path</p>
+                <h3 class="text-lg font-bold text-slate-700">${s.name}</h3>
+                <p class="text-[10px] text-slate-500 mt-1">Consider as a bridge or layer to increase capital-fit.</p>
+            `;
 
-            // Update Checklist
-            document.getElementById('checklist-items').innerHTML = rec.checklist.map(c => `
-                <div class="flex items-center gap-2 text-[11px]">
-                    <div class="w-3 h-3 border border-white/30 rounded flex items-center justify-center">✓</div>
-                    <span>${c}</span>
-                </div>
+            document.getElementById('checklist').innerHTML = p.checklist.map(item => `
+                <li class="flex items-center gap-3 text-[11px] font-medium opacity-90">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                    ${item}
+                </li>
             `).join('');
 
             updateCharts(scores);
         }
 
         function updateCharts(scores) {
-            // Radar Chart
-            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            // Radar
+            const rCtx = document.getElementById('radarChart').getContext('2d');
             if (radarChart) radarChart.destroy();
-            radarChart = new Chart(radarCtx, {
+            radarChart = new Chart(rCtx, {
                 type: 'radar',
                 data: {
-                    labels: ['Debt', 'Equity', 'Blended', 'Grant'],
+                    labels: ['Debt', 'Equity', 'Blended', 'Non-Dilutive'],
                     datasets: [{
-                        data: [scores.debt, scores.equity, scores.blended, scores.grant],
+                        data: scores.map(s => s.score),
                         backgroundColor: 'rgba(79, 70, 229, 0.2)',
                         borderColor: '#4f46e5',
+                        borderWidth: 3,
                         pointBackgroundColor: '#4f46e5'
                     }]
                 },
-                options: { 
-                    scales: { r: { min: 0, max: 5, ticks: { display: false } } },
+                options: {
+                    scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false } } },
                     plugins: { legend: { display: false } },
                     maintainAspectRatio: false
                 }
             });
 
-            // Area Chart
-            const areaCtx = document.getElementById('areaChart').getContext('2d');
-            const months = Array.from({length: 12}, (_, i) => `M${i}`);
-            const funded = months.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i) + (i >= 3 ? state.targetRaise : 0)));
-            const baseline = months.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i)));
+            // Area
+            const aCtx = document.getElementById('areaChart').getContext('2d');
+            const labels = Array.from({length: 24}, (_, i) => `M${i}`);
+            const fundedData = labels.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i) + (i >= 4 ? state.targetRaise : 0)));
+            const baselineData = labels.map((_, i) => Math.max(0, state.currentCash - (state.monthlyBurn * i)));
 
             if (areaChart) areaChart.destroy();
-            areaChart = new Chart(areaCtx, {
+            areaChart = new Chart(aCtx, {
                 type: 'line',
                 data: {
-                    labels: months,
+                    labels: labels,
                     datasets: [
-                        { label: 'With Funding', data: funded, fill: true, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', tension: 0.4 },
-                        { label: 'No Funding', data: baseline, borderColor: '#cbd5e1', borderDash: [5, 5], fill: false, tension: 0.4 }
+                        { label: 'Funded', data: fundedData, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)', borderColor: '#6366f1', tension: 0.3 },
+                        { label: 'No Action', data: baselineData, borderColor: '#cbd5e1', borderDash: [5, 5], tension: 0.3 }
                     ]
                 },
                 options: {
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
-                    scales: { y: { ticks: { font: { size: 9 } } }, x: { ticks: { font: { size: 9 } } } }
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { ticks: { callback: v => `$${v/1000}k`, font: { size: 9 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+                    }
                 }
             });
         }
 
-        window.onload = () => {
-            initInputs();
-            updateDashboard();
-        };
+        window.onload = init;
     </script>
 </body>
 </html>
